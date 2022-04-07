@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 from .forms import UploadForm
 from flask.helpers import send_from_directory
 from flask import jsonify
-
+from flask_wtf.csrf import generate_csrf
 
 ###
 # Routing for your application.
@@ -22,28 +22,33 @@ from flask import jsonify
 def index():
     return jsonify(message="This is the beginning of our API")
 
+@app.route('/api/csrf-token', methods=['GET'])
+def get_csrf():
+ return jsonify({'csrf_token': generate_csrf()})
+
 @app.route('/api/upload', methods=['POST'])
 def upload():
 
     # Instantiate your form class
-    upload_form = UploadForm()
+    form = UploadForm()
 
     # Validate file upload on submit
-    if request.method == 'POST' and upload_form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
         # Get file data and save to your uploads folder
-        description = upload_form.description.data
-        photo = upload_form.photo.data
+        description = form.description.data
+        photo = form.photo.data
         filename = secure_filename(photo.filename)
         photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     
-        upload = [ {
+        upload = {
             "message": "File Upload Successful",
-            "filename": "your-uploaded-file.jpg",
-            "description": "Some description for your image"
-        }]
-
-    return jsonify(form_errors(upload_form), upload = upload)
+            "filename": filename,
+            "description": description
+        }
+        return jsonify(upload = upload)
+    return jsonify(form_errors(form))
     
+
         
         
 
