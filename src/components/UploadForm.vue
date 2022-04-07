@@ -1,5 +1,6 @@
 <template>
     <form @submit.prevent="uploadPhoto" id ="uploadForm" action ="" method = "Post">
+
         <div class="form-group">
             <label for="movie-title">Description</label>
             <textarea  name="description" id="description" class="form-control"></textarea>
@@ -20,7 +21,9 @@
 
 export default {
     data() {
+        
         return {csrf_token: ''}
+         
     },
     created() {
         this.getCsrfToken();
